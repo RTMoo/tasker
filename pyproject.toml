@@ -1,0 +1,22 @@
+[project]
+name = "tasker"
+version = "0.1.0"
+description = "Utility for running commands on intervals"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "psutil>=7.1.3",
+    "pyyaml>=6.0.3",
+    "typer>=0.20.0",
+]
+
+[tool.ruff]
+fix = true
+unsafe-fixes = true
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+lines-between-types = 1
