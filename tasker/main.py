@@ -65,8 +65,8 @@ def ps():
 
     for name, info in state.items():
         pid = info["pid"]
-        status = {"running" if is_alive(pid) else "stopped": 10}
-        typer.echo(f"{name:15} {pid:<8} {status} {info['command']}")
+        status = "running" if is_alive(pid) else "stopped"
+        typer.echo(f"{name:15} {pid:<8} {status:10} {info['command']}")
 
 
 @app.command()

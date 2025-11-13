@@ -24,7 +24,6 @@ def load_state():
 
 def save_state(state: dict):
     with open(STATE_FILE, "w") as f:
-        print(state)
         json.dump(state, f, indent=2)
 
 
