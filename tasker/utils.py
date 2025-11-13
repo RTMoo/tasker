@@ -7,7 +7,7 @@ import psutil
 import typer
 import yaml
 
-from constants import STATE_FILE, COLORS
+from constants import COLORS, STATE_FILE
 
 
 def load_yaml(file="tasker.yaml"):
