@@ -31,9 +31,15 @@ def is_alive(pid: int) -> bool:
     return psutil.pid_exists(pid)
 
 
-def run_command_loop(name, command, interval, quantity=None):
+def run_command_loop(
+    name: str,
+    command: str,
+    interval: float,
+    quantity: int = 0,
+    log=False,
+):
     typer.echo(f"[{name}] started with PID {os.getpid()}")
-    if quantity:
+    if quantity > 0:
         for i in range(quantity):
             proc = subprocess.Popen(
                 command,
@@ -41,7 +47,12 @@ def run_command_loop(name, command, interval, quantity=None):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
-            proc.wait()
+            stdout, stderr = proc.communicate()
+            if log:
+                if stdout:
+                    typer.secho(f"[{name}] {stdout.decode().strip()}", fg=color)
+                else:
+                    typer.secho(f"[{name}] {stderr.decode().strip()}", fg=color)
             if i < quantity - 1:
                 time.sleep(interval)
     else:
@@ -53,7 +64,10 @@ def run_command_loop(name, command, interval, quantity=None):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
-            proc.wait()
-            print(i)
-            i += 1
+            stdout, stderr = proc.communicate()
+            if log:
+                if stdout:
+                    typer.secho(f"[{name}] {stdout.decode().strip()}", fg=color)
+                else:
+                    typer.secho(f"[{name}] {stderr.decode().strip()}", fg=color)
             time.sleep(interval)

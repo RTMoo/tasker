@@ -12,9 +12,9 @@ app = typer.Typer()
 
 
 @app.command()
-def up(config: str = "tasker.yaml"):
+def up(f: str = "tasker.yaml", log: bool = False):
     """Запускает все задачи как отдельные процессы"""
-    tasks = load_yaml(config)
+    tasks = load_yaml(f)
     state = load_state()
     processes = []
 
@@ -26,7 +26,8 @@ def up(config: str = "tasker.yaml"):
                     task.get("name"),
                     task.get("command"),
                     task.get("interval", 0),
-                    task.get("quantity"),
+                    task.get("quantity", 0),
+                    log,
                 ),
                 daemon=False,
             )
