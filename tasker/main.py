@@ -18,6 +18,10 @@ def up(f: str = "tasker.yaml", log: bool = False):
     state = load_state()
     processes = []
 
+    for task in tasks:
+        task = state.get(task["name"])
+        if task and task["status"] == "running":
+            os.kill(task["pid"], signal.SIGTERM)
     try:
         for task in tasks:
             p = Process(
