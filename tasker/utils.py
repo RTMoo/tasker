@@ -7,7 +7,7 @@ import psutil
 import typer
 import yaml
 
-from constants import STATE_FILE
+from constants import STATE_FILE, COLORS
 
 
 def load_yaml(file="tasker.yaml"):
@@ -31,6 +31,10 @@ def is_alive(pid: int) -> bool:
     return psutil.pid_exists(pid)
 
 
+def color_for_name(name: str) -> str:
+    return COLORS[hash(name) % len(COLORS)]
+
+
 def run_command_loop(
     name: str,
     command: str,
@@ -38,7 +42,8 @@ def run_command_loop(
     quantity: int = 0,
     log=False,
 ):
-    typer.echo(f"[{name}] started with PID {os.getpid()}")
+    color = color_for_name(name)
+    typer.secho(f"[{name}] started with PID {os.getpid()}", fg=color, bold=True)
     if quantity > 0:
         for i in range(quantity):
             proc = subprocess.Popen(
@@ -56,7 +61,6 @@ def run_command_loop(
             if i < quantity - 1:
                 time.sleep(interval)
     else:
-        i = 1
         while True:
             proc = subprocess.Popen(
                 command,
