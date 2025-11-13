@@ -1,13 +1,11 @@
 import json
-import os
-import subprocess
-import time
+
+from typing import Any
 
 import psutil
-import typer
 import yaml
 
-from constants import COLORS, STATE_FILE
+from .constants import COLORS, STATE_FILE
 
 
 def load_yaml(file="tasker.yaml"):
@@ -22,7 +20,7 @@ def load_state():
     return {}
 
 
-def save_state(state: dict):
+def save_state(state: dict[str, Any]):
     with open(STATE_FILE, "w") as f:
         json.dump(state, f, indent=2)
 
@@ -33,48 +31,6 @@ def is_alive(pid: int) -> bool:
 
 def color_for_name(name: str) -> str:
     return COLORS[hash(name) % len(COLORS)]
-
-
-def run_command_loop(
-    name: str,
-    command: str,
-    interval: float,
-    quantity: int = 0,
-    log=False,
-):
-    color = color_for_name(name)
-    typer.secho(f"[{name}] started with PID {os.getpid()}", fg=color, bold=True)
-    if quantity > 0:
-        for i in range(quantity):
-            proc = subprocess.Popen(
-                command,
-                shell=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
-            stdout, stderr = proc.communicate()
-            if log:
-                if stdout:
-                    typer.secho(f"[{name}] {stdout.decode().strip()}", fg=color)
-                else:
-                    typer.secho(f"[{name}] {stderr.decode().strip()}", fg=color)
-            if i < quantity - 1:
-                time.sleep(interval)
-    else:
-        while True:
-            proc = subprocess.Popen(
-                command,
-                shell=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
-            stdout, stderr = proc.communicate()
-            if log:
-                if stdout:
-                    typer.secho(f"[{name}] {stdout.decode().strip()}", fg=color)
-                else:
-                    typer.secho(f"[{name}] {stderr.decode().strip()}", fg=color)
-            time.sleep(interval)
 
 
 def kill_process(pid: int):

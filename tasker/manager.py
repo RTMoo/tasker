@@ -2,21 +2,18 @@ from multiprocessing import Process
 
 import typer
 
-from constants import STATE_FILE
-from utils import (
+from .constants import STATE_FILE
+from .utils import (
     is_alive,
     kill_process,
     load_state,
     load_yaml,
-    run_command_loop,
     save_state,
 )
+from .runners import run_command_loop
 
-app = typer.Typer()
 
-
-@app.command()
-def up(f: str = "tasker.yaml", log: bool = False):
+def up_all(f: str = "tasker.yaml", log: bool = False):
     """Запускает все задачи как отдельные процессы"""
     tasks = load_yaml(f)
     state = load_state()
@@ -60,8 +57,7 @@ def up(f: str = "tasker.yaml", log: bool = False):
         typer.echo("Все задачи остановлены.")
 
 
-@app.command()
-def ps():
+def show_all():
     """Показывает список активных процессов"""
     state = load_state()
     if not state:
@@ -77,8 +73,7 @@ def ps():
         typer.echo(f"{name:15} {pid:<8} {status:10} {info['command']}")
 
 
-@app.command()
-def stop(name: str):
+def stop_task(name: str):
     """Останавливает задачу по имени"""
     state = load_state()
     if name not in state:
@@ -95,8 +90,7 @@ def stop(name: str):
         typer.echo("Процесс уже завершён.")
 
 
-@app.command()
-def down():
+def down_all():
     """Останавливает все процессы"""
     state = load_state()
     for name, task in state.items():
@@ -107,7 +101,3 @@ def down():
             typer.echo(f"{name} уже не активен.")
     STATE_FILE.unlink(missing_ok=True)
     typer.echo("Все процессы остановлены.")
-
-
-if __name__ == "__main__":
-    app()
