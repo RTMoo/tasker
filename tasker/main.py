@@ -1,12 +1,16 @@
-import os
-import signal
-
 from multiprocessing import Process
 
 import typer
 
 from constants import STATE_FILE
-from utils import is_alive, load_state, load_yaml, run_command_loop, save_state
+from utils import (
+    is_alive,
+    kill_process,
+    load_state,
+    load_yaml,
+    run_command_loop,
+    save_state,
+)
 
 app = typer.Typer()
 
@@ -21,10 +25,10 @@ def up(f: str = "tasker.yaml", log: bool = False):
     for task in tasks:
         task = state.get(task["name"])
         if task and task["status"] == "running":
-            os.kill(task["pid"], signal.SIGTERM)
+            kill_process(task["pid"])
     try:
         for task in tasks:
-            p = Process(
+            proc = Process(
                 target=run_command_loop,
                 args=(
                     task.get("name"),
@@ -35,11 +39,11 @@ def up(f: str = "tasker.yaml", log: bool = False):
                 ),
                 daemon=False,
             )
-            p.start()
-            processes.append(p)
+            proc.start()
+            processes.append(proc)
 
             state[task["name"]] = {
-                "pid": p.pid,
+                "pid": proc.pid,
                 "command": task["command"],
                 "status": "running",
             }
@@ -47,13 +51,12 @@ def up(f: str = "tasker.yaml", log: bool = False):
         save_state(state)
         typer.echo(f"Запущено {len(tasks)} задач.")
 
-        for p in processes:
-            p.join()
+        for proc in processes:
+            proc.join()
 
     except KeyboardInterrupt:
-        for p in processes:
-            if p.is_alive():
-                p.kill()
+        for proc in processes:
+            kill_process(proc.pid)
         typer.echo("Все задачи остановлены.")
 
 
@@ -84,7 +87,7 @@ def stop(name: str):
 
     pid = state[name]["pid"]
     try:
-        os.kill(pid, signal.SIGTERM)
+        kill_process(pid)
         state[name]["status"] = "stopped"
         save_state(state)
         typer.echo(f"Остановлена задача {name} (PID {pid})")
@@ -96,10 +99,10 @@ def stop(name: str):
 def down():
     """Останавливает все процессы"""
     state = load_state()
-    for name, info in state.items():
+    for name, task in state.items():
         try:
-            os.kill(info["pid"], signal.SIGTERM)
-            typer.echo(f"Остановлен {name} ({info['pid']})")
+            kill_process(task["pid"])
+            typer.echo(f"Остановлен {name} ({task['pid']})")
         except ProcessLookupError:
             typer.echo(f"{name} уже не активен.")
     STATE_FILE.unlink(missing_ok=True)

@@ -75,3 +75,15 @@ def run_command_loop(
                 else:
                     typer.secho(f"[{name}] {stderr.decode().strip()}", fg=color)
             time.sleep(interval)
+
+
+def kill_process(pid: int):
+    try:
+        proc = psutil.Process(pid)
+        proc.terminate()
+        try:
+            proc.wait(timeout=3)
+        except psutil.TimeoutExpired:
+            proc.kill()
+    except psutil.NoSuchProcess:
+        pass
