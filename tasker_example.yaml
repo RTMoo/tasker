@@ -1,0 +1,4 @@
+tasks:
+  - name: ping_google1
+    command: ping -c 1 google.com
+    interval: 5
