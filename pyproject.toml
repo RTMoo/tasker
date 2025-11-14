@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tasker_scheduler"
-version = "0.1.0"
+version = "0.1.1"
 description = "Utility for running commands on intervals"
 readme = "README.md"
 requires-python = ">=3.12"
