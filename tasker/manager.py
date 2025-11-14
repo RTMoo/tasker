@@ -101,3 +101,37 @@ def down_all():
             typer.echo(f"{name} уже не активен.")
     STATE_FILE.unlink(missing_ok=True)
     typer.echo("Все процессы остановлены.")
+
+
+def restart_task(name: str):
+    """Перезапускает процесс"""
+    state = load_state()
+    
+    try:
+        task = state[name]
+        try:
+            kill_process(task["pid"])
+        except ProcessLookupError:
+            typer.echo(f"{name} уже не активен.")
+        proc = Process(
+                target=run_command_loop,
+                args=(
+                    name,
+                    task.get("command"),
+                    task.get("interval", 0),
+                    task.get("quantity", 0),
+                ),
+                daemon=False,
+            )
+        proc.start()
+        state[name] = {
+                "pid": proc.pid,
+                "command": task["command"],
+                "status": "running",
+            }
+
+        save_state(state)
+        typer.echo(f"{name} перезапустился")
+        
+    except KeyError:
+        typer.echo("Такой задачи нет")

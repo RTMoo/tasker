@@ -1,6 +1,6 @@
 import typer
 
-from .manager import down_all, show_all, stop_task, up_all
+from .manager import down_all, show_all, stop_task, up_all, restart_task
 
 app = typer.Typer()
 
@@ -23,6 +23,11 @@ def stop(name: str):
 @app.command()
 def down():
     down_all()
+
+
+@app.command()
+def restart(name: str):
+    restart_task(name)
 
 
 if __name__ == "__main__":
