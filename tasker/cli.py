@@ -1,6 +1,6 @@
 import typer
 
-from .manager import down_all, show_all, stop_task, up_all, restart_task
+from .manager import down_all, restart_task, show_all, stop_task, up_all
 
 app = typer.Typer()
 

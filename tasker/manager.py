@@ -3,6 +3,7 @@ from multiprocessing import Process
 import typer
 
 from .constants import STATE_FILE
+from .runners import run_command_loop
 from .utils import (
     is_alive,
     kill_process,
@@ -10,7 +11,6 @@ from .utils import (
     load_yaml,
     save_state,
 )
-from .runners import run_command_loop
 
 
 def up_all(f: str = "tasker.yaml", log: bool = False):
@@ -106,7 +106,7 @@ def down_all():
 def restart_task(name: str):
     """Перезапускает процесс"""
     state = load_state()
-    
+
     try:
         task = state[name]
         try:
@@ -114,24 +114,24 @@ def restart_task(name: str):
         except ProcessLookupError:
             typer.echo(f"{name} уже не активен.")
         proc = Process(
-                target=run_command_loop,
-                args=(
-                    name,
-                    task.get("command"),
-                    task.get("interval", 0),
-                    task.get("quantity", 0),
-                ),
-                daemon=False,
-            )
+            target=run_command_loop,
+            args=(
+                name,
+                task.get("command"),
+                task.get("interval", 0),
+                task.get("quantity", 0),
+            ),
+            daemon=False,
+        )
         proc.start()
         state[name] = {
-                "pid": proc.pid,
-                "command": task["command"],
-                "status": "running",
-            }
+            "pid": proc.pid,
+            "command": task["command"],
+            "status": "running",
+        }
 
         save_state(state)
         typer.echo(f"{name} перезапустился")
-        
+
     except KeyError:
         typer.echo("Такой задачи нет")
