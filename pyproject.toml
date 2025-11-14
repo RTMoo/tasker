@@ -1,5 +1,9 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "tasker"
+name = "tasker_scheduler"
 version = "0.1.0"
 description = "Utility for running commands on intervals"
 readme = "README.md"
@@ -9,6 +13,9 @@ dependencies = [
     "pyyaml>=6.0.3",
     "typer>=0.20.0",
 ]
+
+[project.scripts]
+tasker = "tasker.cli:app"
 
 [tool.ruff]
 fix = true
